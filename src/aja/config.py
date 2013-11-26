@@ -71,7 +71,7 @@ class Config(object):
     @property
     def buildout_user(self):
         """
-        Return effective user. If not configured, return current logged in user.
+        Return buildout user. If not configured, return current logged in user.
         """
         return self.get_user('buildout-user')
 

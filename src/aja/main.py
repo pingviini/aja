@@ -24,7 +24,6 @@ from aja.exceptions import NoExecutable
 
 
 class Aja(object):
-    """Spread the stardust."""
 
     def __init__(self, arguments):
         self.arguments = arguments
