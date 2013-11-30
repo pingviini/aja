@@ -23,7 +23,6 @@ Install aja normally with pip. Aja installs following requirements:
 * Fabric
 * docopt
 * zc.buildout
-* reg
 
 ::
 

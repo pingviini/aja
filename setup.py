@@ -25,7 +25,6 @@ setup(name='aja',
           'setuptools',
           'docopt',
           'fabric',
-          'reg',
           'zc.buildout',
       ],
       extras_require={
