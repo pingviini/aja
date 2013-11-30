@@ -1,10 +1,13 @@
 """Aja
 
 Usage:
-    aja register [<name> --config-repo=<config> --python=<python> --vcs=<vcs> --production-host=<phost> --development-host=<dhost>]
+    aja register [<name> --config-repo=<config> --python=<python>
+                  --vcs=<vcs> --production-host=<phost>
+                  --development-host=<dhost>]
     aja info [<name>]
     aja list
-    aja [clone update bootstrap buildout deploy] <name>
+    aja [clone update bootstrap buildout deploy ] <name>
+    aja show-config <name>
 
 Options:
     -h --help   Show this screen.
@@ -20,7 +23,9 @@ import subprocess
 
 from docopt import docopt
 from aja.config import Config
+from aja.buildout import AjaBuildout
 from aja.exceptions import NoExecutable
+from pprint import pprint
 
 
 class Aja(object):
@@ -37,6 +42,7 @@ class Aja(object):
             'buildout': self.run_buildout,
             'register': self.register,
             'deploy': self.deploy,
+            'show-config': self.show_config,
         }
 
     def __call__(self):
@@ -53,6 +59,12 @@ class Aja(object):
         else:
             raise NoExecutable("Couldn't find hg from PATH.")
 
+    def show_config(self):
+        name = self.arguments["<name>"]
+        buildout = AjaBuildout(self.config, name)
+        pprint(buildout.buildout_config)
+        pprint(buildout.eggs)
+
     def show_info(self):
         name = self.arguments["<name>"]
         if name:
@@ -62,7 +74,8 @@ class Aja(object):
 
             print("Configured vcs path: %s" % self.config.vcs_path)
             print("Configured python path: %s" % self.config.python)
-            print("Configured deployment target: %s" % self.config.deployment_target)
+            print("Configured deployment target: %s" %
+                  self.config.deployment_target)
 
     def list_buildouts(self):
         for dir in os.listdir(self.config.buildouts_folder):
@@ -82,16 +95,13 @@ class Aja(object):
         subprocess.check_call(shlex.split(cmd))
 
     def bootstrap_buildout(self):
-        os.chdir("%s/%s" % (self.config.buildouts_folder,
-                            self.arguments['<name>']))
-        cmd = "%s bootstrap.py" % self.config.python
-        subprocess.check_call(shlex.split(cmd))
+        """Run bootstrap.py on buildout folder."""
+        buildout = AjaBuildout(self.config, self.arguments['<name>'])
+        buildout.run_bootstrap()
 
     def run_buildout(self):
-        os.chdir("%s/%s" % (self.config.buildouts_folder,
-                            self.arguments['<name>']))
-        cmd = "bin/buildout -N"
-        subprocess.check_call(shlex.split(cmd))
+        buildout = AjaBuildout(self.config, self.arguments['<name>'])
+        buildout.run_buildout()
 
     def deploy(self):
         print("Deploy...")
