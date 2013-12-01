@@ -12,3 +12,7 @@ class NoBuildoutConfigException(Exception):
 
 class AjaConfigError(Exception):
     """Invalid configuration."""
+
+
+class RegistrationException(Exception):
+    """Registration failed."""

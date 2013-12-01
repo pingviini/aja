@@ -1,7 +1,7 @@
 """Aja
 
 Usage:
-    aja register [<name> --config-repo=<config> --python=<python>
+    aja register [<name> --config-repo=<config> --python-path=<python>
                   --vcs=<vcs> --production-host=<phost>
                   --development-host=<dhost>]
     aja info [<name>]
@@ -21,10 +21,14 @@ import os
 import shlex
 import subprocess
 
-from docopt import docopt
-from aja.config import Config
 from aja.buildout import AjaBuildout
-from aja.exceptions import NoExecutable
+from aja.config import Config
+from aja.exceptions import (
+    NoExecutable,
+    RegistrationException
+)
+from aja.register import Register
+from docopt import docopt
 from pprint import pprint
 
 
@@ -108,7 +112,11 @@ class Aja(object):
         pass
 
     def register(self):
-        pass
+        try:
+            register = Register(self.arguments, self.config)
+            register
+        except RegistrationException as e:
+            print(e)
 
 
 def main():
