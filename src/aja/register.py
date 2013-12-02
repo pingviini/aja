@@ -22,7 +22,7 @@ class Register(object):
         config.set('config', 'vcs-path', self.arguments['--vcs'])
         config.set('config', 'target', self.arguments['--production-host'])
 
-        if '<dhost>' in self.arguments.keys():
+        if '--development-host' in self.arguments.keys():
             config.add_section('develop')
             config.set('develop', 'target',
                        self.arguments['--development-host'])
