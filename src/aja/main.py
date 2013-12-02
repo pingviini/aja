@@ -1,9 +1,11 @@
 """Aja
 
 Usage:
-    aja register [<name> --config-repo=<config> --python-path=<python>
-                  --vcs=<vcs> --production-host=<phost>
-                  --development-host=<dhost>]
+    aja register <name> [--config-repo=<config>
+                         --python-path=<python>
+                         --vcs=<vcs>
+                         --production-host=<phost>
+                         --development-host=<dhost>]
     aja info [<name>]
     aja list
     aja [clone update bootstrap buildout deploy ] <name>
@@ -101,7 +103,7 @@ class Aja(object):
     def bootstrap_buildout(self):
         """Run bootstrap.py on buildout folder."""
         buildout = AjaBuildout(self.config, self.arguments['<name>'])
-        buildout.run_bootstrap()
+        buildout.bootstrap_buildout()
 
     def run_buildout(self):
         buildout = AjaBuildout(self.config, self.arguments['<name>'])
