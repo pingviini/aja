@@ -5,9 +5,7 @@ import logging
 
 from aja.utils import memoize
 from pprint import pprint
-from zc.buildout.buildout import (
-    Buildout,
-)
+from zc.buildout.buildout import Buildout
 
 
 class AjaBuildout(object):
@@ -15,6 +13,7 @@ class AjaBuildout(object):
     def __init__(self, config, name):
         self.config = config
         self.name = name
+        self.buildout_config = self.get_buildout_config()
 
     def update_buildout(self):
         os.chdir("%s/%s" % (self.config.buildouts_folder,
@@ -37,8 +36,7 @@ class AjaBuildout(object):
         subprocess.check_call(shlex.split(cmd))
 
     @memoize
-    @property
-    def buildout_config(self):
+    def get_buildout_config(self):
         """Parse buildout config with zc.buildout ConfigParser."""
         logging.info("Loading buildout.cfg...")
         cfg = Buildout("%s/%s/buildout.cfg" % (self.config.buildouts_folder,
