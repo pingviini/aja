@@ -8,6 +8,9 @@ from ConfigParser import (
     NoOptionError,
     NoSectionError,
 )
+from aja.exceptions import (
+    AjaConfigException,
+)
 
 
 DEFAULT_PATHS = [
@@ -19,9 +22,14 @@ DEFAULT_PATHS = [
 
 class Config(object):
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, config_path=None):
         self.parser = ConfigParser()
-        self.parser.read(DEFAULT_PATHS)
+
+        if not config_path:
+            self.parser.read(DEFAULT_PATHS)
+        else:
+            self.parser.read(config_path)
+
         if name:
             self.buildout_parser = ConfigParser()
             self.buildout_parser.read("%s/%s.cfg" % (
@@ -58,8 +66,8 @@ class Config(object):
         if os.path.isdir(path):
             return path
         else:
-            raise AjaConfigError("Invalid buildouts-config-folder. Please "
-                                 "check your settings.")
+            raise AjaConfigException("Invalid buildouts-config-folder. Please "
+                                     "check your settings.")
 
     @property
     def effective_user(self):
