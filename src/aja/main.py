@@ -6,15 +6,16 @@ Usage:
                          --vcs=<vcs>
                          --production-host=<phost>
                          --development-host=<dhost>]
-    aja info [<name>]
-    aja list
-    aja [clone update bootstrap buildout deploy ] <name>
+    aja [-c <config_path>] info [<name>]
+    aja [-c <config_path>] [clone update bootstrap buildout deploy ] <name>
     aja show-config <name>
+    aja list
 
 Options:
     -h --help   Show this screen.
     --version   Show version.
     -v          Verbose output.
+    -c          Aja config path.
 
 
 """
@@ -38,7 +39,6 @@ class Aja(object):
 
     def __init__(self, arguments):
         self.arguments = arguments
-        self.config = Config(self.arguments['<name>'])
         self.actions = {
             'clone': self.clone_buildout,
             'list': self.list_buildouts,
@@ -50,6 +50,11 @@ class Aja(object):
             'deploy': self.deploy,
             'show-config': self.show_config,
         }
+        if self.arguments['-c']:
+            self.config = Config(self.arguments['<name>'],
+                                 config_path=self.arguments['<config_path>'])
+        else:
+            self.config = Config(self.arguments['<name>'])
 
     def __call__(self):
         actions = [action for key, action in self.actions.items()
