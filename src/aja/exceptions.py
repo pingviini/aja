@@ -10,7 +10,7 @@ class NoBuildoutConfigException(Exception):
     """Missing buildout.cfg."""
 
 
-class AjaConfigError(Exception):
+class AjaConfigException(Exception):
     """Invalid configuration."""
 
 
