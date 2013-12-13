@@ -6,8 +6,8 @@ Usage:
                          --vcs=<vcs>
                          --production-host=<phost>
                          --development-host=<dhost>]
-    aja [-c <config_path>] info [<name>]
-    aja [-c <config_path>] [clone update bootstrap buildout deploy ] <name>
+    aja [--conf=<config_path>] info [<name>]
+    aja [--conf=<config_path>] [clone update bootstrap buildout deploy -d] <name>
     aja show-config <name>
     aja list
 
@@ -15,7 +15,7 @@ Options:
     -h --help   Show this screen.
     --version   Show version.
     -v          Verbose output.
-    -c          Aja config path.
+    -d          Deploy to development server.
 
 
 """
@@ -26,6 +26,7 @@ import subprocess
 
 from aja.buildout import AjaBuildout
 from aja.config import Config
+from aja.deploy import Deploy
 from aja.exceptions import (
     NoExecutable,
     RegistrationException
@@ -33,12 +34,16 @@ from aja.exceptions import (
 from aja.register import Register
 from docopt import docopt
 from pprint import pprint
+from aja.rsync import Rsync
 
 
 class Aja(object):
 
     def __init__(self, arguments):
         self.arguments = arguments
+        self.name = self.arguments['<name>']
+        self.config_path = self.arguments['--conf']
+
         self.actions = {
             'clone': self.clone_buildout,
             'list': self.list_buildouts,
@@ -50,11 +55,9 @@ class Aja(object):
             'deploy': self.deploy,
             'show-config': self.show_config,
         }
-        if self.arguments['-c']:
-            self.config = Config(self.arguments['<name>'],
-                                 config_path=self.arguments['<config_path>'])
-        else:
-            self.config = Config(self.arguments['<name>'])
+
+        self.config = Config(self.name,
+                             config_path=self.config_path)
 
     def __call__(self):
         actions = [action for key, action in self.actions.items()
@@ -72,7 +75,7 @@ class Aja(object):
 
     def show_config(self):
         name = self.arguments["<name>"]
-        buildout = AjaBuildout(self.config, name)
+        buildout = AjaBuildout(self.config, self.arguments)
         pprint(buildout.buildout_config)
         pprint(buildout.eggs)
 
@@ -98,24 +101,26 @@ class Aja(object):
         subprocess.check_call(shlex.split(cmd))
 
     def update_buildout(self):
-        os.chdir("%s/%s" % (self.config.buildouts_folder,
-                            self.arguments['<name>']))
-        cmd = "%s pull" % (self.hg)
-        subprocess.check_call(shlex.split(cmd))
-        cmd = "%s update -C" % (self.hg)
-        subprocess.check_call(shlex.split(cmd))
+        """Update buildout."""
+        buildout = AjaBuildout(self.config, self.arguments)
+        buildout.update_buildout()
 
     def bootstrap_buildout(self):
         """Run bootstrap.py on buildout folder."""
-        buildout = AjaBuildout(self.config, self.arguments['<name>'])
+        buildout = AjaBuildout(self.config, self.arguments)
         buildout.bootstrap_buildout()
 
     def run_buildout(self):
-        buildout = AjaBuildout(self.config, self.arguments['<name>'])
+        buildout = AjaBuildout(self.config, self.arguments)
         buildout.run_buildout()
 
     def deploy(self):
+        deploy = Rsync(self.config, self.arguments)
+        deploy.push(self.config.working_dir)
         print("Deploy...")
+        pass
+
+    def stage(self):
         pass
 
     def register(self):

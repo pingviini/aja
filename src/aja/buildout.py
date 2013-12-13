@@ -10,17 +10,18 @@ from zc.buildout.buildout import Buildout
 
 class AjaBuildout(object):
 
-    def __init__(self, config, name):
+    def __init__(self, config, arguments):
         self.config = config
-        self.name = name
+        self.name = self.config.name
+        self.arguments = arguments
         self.buildout_config = self.get_buildout_config()
 
+        os.chdir(self.config.working_dir)
+
     def update_buildout(self):
-        os.chdir("%s/%s" % (self.config.buildouts_folder,
-                            self.name))
-        cmd = "%s pull" % (self.hg)
+        cmd = "%s pull" % (self.config.hg_path)
         subprocess.check_call(shlex.split(cmd))
-        cmd = "%s update -C" % (self.hg)
+        cmd = "%s update -C" % (self.config.hg_path)
         subprocess.check_call(shlex.split(cmd))
 
     def bootstrap_buildout(self):
@@ -33,6 +34,8 @@ class AjaBuildout(object):
         os.chdir("%s/%s" % (self.config.buildouts_folder,
                             self.name))
         cmd = "bin/buildout -N"
+        if self.arguments['-d']:
+            cmd += 'c {devfile}'.format(devfile=self.config.development_config)
         subprocess.check_call(shlex.split(cmd))
 
     @memoize

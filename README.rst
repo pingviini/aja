@@ -41,7 +41,7 @@ the following directories by default:
     $ mkdir -p ~/.aja/sites
     $ touch ~/.aja/config.cfg
 
-Copy and modifu the following content inside config.cfg you just created::
+Copy and modify the following content inside config.cfg you just created::
 
     [global]
     buildouts-folder = /path/to/buildouts
@@ -60,12 +60,14 @@ Add config for site under /path/to/buildouts/aja/configuration::
 
     [config]
     python-path = /path/to/python/for/bootstrapping
-    vcs-path = https://www.example.org/buildout
-    vcs-type = hg
     target = ssh.example.org
 
     [develop]
     config = develop.cfg
+
+    [vcs]
+    type = hg
+    uri = https://www.example.org/buildout
 
 Usage (deployment not implemented yet)
 --------------------------------------

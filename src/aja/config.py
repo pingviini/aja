@@ -23,6 +23,7 @@ DEFAULT_PATHS = [
 class Config(object):
 
     def __init__(self, name=None, config_path=None):
+        self.name = name
         self.parser = ConfigParser()
 
         if not config_path:
@@ -30,10 +31,10 @@ class Config(object):
         else:
             self.parser.read(config_path)
 
-        if name:
+        if self.name:
             self.buildout_parser = ConfigParser()
             self.buildout_parser.read("%s/%s.cfg" % (
-                self.buildouts_config_folder, name))
+                self.buildouts_config_folder, self.name))
         else:
             self.buildout_parser = None
 
@@ -137,12 +138,12 @@ class Config(object):
     @property
     def vcs_type(self):
         """Return vcs type."""
-        return self.get_buildout_option('vcs-type')
+        return self.get_buildout_option('type', section='vcs')
 
     @property
     def vcs_path(self):
         """Return path to the actual buildout."""
-        return self.get_buildout_option('vcs-path')
+        return self.get_buildout_option('uri', section='vcs')
 
     @property
     def hg_path(self):
@@ -153,3 +154,20 @@ class Config(object):
     def deployment_target(self):
         """Deployment path."""
         return self.get_buildout_option('target')
+
+    @property
+    def development_target(self):
+        """Deployment path."""
+        return self.get_buildout_option('target', section='develop')
+
+    @property
+    def development_config(self):
+        """Development config."""
+        return self.get_buildout_option('config', section='develop')
+
+    @property
+    def working_dir(self):
+        """Return working dir."""
+        return "{buildouts_folder}/{buildout_name}".format(
+            buildouts_folder=self.buildouts_folder,
+            buildout_name=self.name)
