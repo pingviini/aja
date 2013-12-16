@@ -74,15 +74,13 @@ class Aja(object):
             raise NoExecutable("Couldn't find hg from PATH.")
 
     def show_config(self):
-        name = self.arguments["<name>"]
         buildout = AjaBuildout(self.config, self.arguments)
         pprint(buildout.buildout_config)
         pprint(buildout.eggs)
 
     def show_info(self):
-        name = self.arguments["<name>"]
-        if name:
-            config = "Buildout (%s) config." % name
+        if self.name:
+            config = "Buildout (%s) config." % self.name
             print(config)
             print("%s" % "*" * len(config))
 

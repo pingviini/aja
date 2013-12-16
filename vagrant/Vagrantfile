@@ -1,0 +1,36 @@
+# -*- mode:ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define :staging do |staging|
+    staging.vm.box = "centos64"
+    staging.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
+    staging.vm.network :private_network, ip: "192.168.50.10"
+    staging.vm.provision :puppet do |puppet|
+      puppet.module_path = "."
+      puppet.manifests_path = "."
+      puppet.manifest_file = "staging.pp"
+    end
+  end
+  config.vm.define :production do |production|
+    production.vm.box = "centos64"
+    production.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
+    production.vm.network :private_network, ip: "192.168.50.11"
+    production.vm.provision :puppet do |puppet|
+      puppet.module_path = "."
+      puppet.manifests_path = "."
+      puppet.manifest_file = "production.pp"
+    end
+  end
+  config.vm.define :development do |development|
+    development.vm.box = "centos64"
+    development.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
+    development.vm.network :private_network, ip: "192.168.50.12"
+    development.vm.provision :puppet do |puppet|
+      puppet.module_path = "."
+      puppet.manifests_path = "."
+      puppet.manifest_file = "development.pp"
+    end
+  end
+end
+
