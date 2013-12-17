@@ -1,0 +1,67 @@
+class { "epel": }
+
+class bootstrap {
+  package {[
+    "autoconf",
+    "automake",
+    "asciidoc",
+    "binutils",
+    "bison",
+    "byacc",
+    "bzip2-devel",
+    "cscope",
+    "ctags",
+    "cvs",
+    "db4-devel",
+    "diffstat",
+    "doxygen",
+    "elfutils",
+    "elinks",
+    "expat-devel",
+    "flex",
+    "freetype-devel",
+    "gcc",
+    "gcc-c++",
+    "gcc-gfortran",
+    "gdbm-devel",
+    "gettext",
+    "git",
+    "htop",
+    "indent",
+    "intltool",
+    "iptraf",
+    "kernel-devel",
+    "libcurl-devel",
+    "libjpeg-turbo-devel",
+    "libpng-devel",
+    "libtool",
+    "libxslt-devel",
+    "lynx",
+    "make",
+    "openldap-clients",
+    "openldap-devel",
+    "openssl-devel",
+    "patch",
+    "patchutils",
+    "pkgconfig",
+    "python",
+    "python-devel",
+    "python-virtualenv",
+    "rcs",
+    "readline-devel",
+    "subversion",
+    "swig",
+    "systemtap",
+    "unzip",
+    "vim-enhanced",
+    "wget",
+    "zip",
+    "zlib-devel"]:
+  ensure => "installed",
+  require => Class["epel"]
+  }
+}
+
+class { "bootstrap": }
+class { "buildouts": }
+class { "aja": }
