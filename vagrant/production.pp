@@ -38,6 +38,7 @@ class bootstrap {
     "libxslt-devel",
     "lynx",
     "make",
+    "mercurial",
     "openldap-clients",
     "openldap-devel",
     "openssl-devel",
@@ -63,4 +64,7 @@ class bootstrap {
 }
 
 class { "bootstrap": }
-class { "buildouts": }
+class { "aja":
+  is_master => false,
+  master_public_key => $master_public_key
+}
