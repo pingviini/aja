@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
     development.vm.provision :puppet do |puppet|
       puppet.module_path = "."
       puppet.manifests_path = "."
-      puppet.manifest_file = "development.pp"
+      puppet.manifest_file = "production.pp"
     end
   end
 end

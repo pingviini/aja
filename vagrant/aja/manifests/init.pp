@@ -1,20 +1,15 @@
 class aja {
-  exec { "git clone https://github.com/pingviini/aja":
+  vcsrepo { "/home/vagrant/aja":
+    ensure => present,
+    provider => git,
+    source => "https://github.com/pingviini/aja",
     user => "vagrant",
-    path => [
-      "/bin",
-      "/usr/bin"
-    ],
-    require => [
-      Package['git']
-    ]
   }
-
   exec { "python /home/vagrant/aja/setup.py install":
     cwd => "/home/vagrant/aja",
     user => "root",
-    require => Exec["git clone https://github.com/pingviini/aja"],
-    path => ["/bin", "/usr/bin"]
+    path => ["/bin", "/usr/bin"],
+    onlyif => [ "test -d /home/vagrant/aja" ]
   }
 
   file { "/home/vagrant/.aja":
