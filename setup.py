@@ -26,7 +26,8 @@ setup(name='aja',
           'docopt',
           'fabric',
           'zc.buildout',
-          'pycrypto==2.6.1'
+          'pycrypto==2.6.1',
+          'path.py',
       ],
       extras_require={
           'docs': ['Sphinx']
