@@ -17,7 +17,7 @@ class AjaBuildout(object):
         self.config = config
         self.name = self.config.name
         self.arguments = arguments
-        self.plugins = get_plugins()
+        self.plugins = get_plugins('aja.plugins.vcs')
         self.buildout_config = self.get_buildout_config()
 
         os.chdir(self.config.working_dir)

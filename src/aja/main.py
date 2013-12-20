@@ -43,7 +43,8 @@ class Aja(object):
     def __init__(self, arguments):
         self.arguments = arguments
         self.names = self.arguments['<name>']
-        self.plugins = get_plugins()
+        self.vcs_plugins = get_plugins('aja.plugins.vcs')
+        self.deploy_plugins = get_plugins('aja.plugins.deploy')
         self.config_path = self.arguments['--config-path']
         self.configs = {name: Config(name, config_path=self.config_path) for
                         name in self.names}
@@ -85,15 +86,13 @@ class Aja(object):
                   self.config.deployment_target))
 
     def list_buildouts(self):
-        for dir in os.listdir(self.config.buildouts_folder):
+        for dir in path(self.config.buildouts_folder):
             print("* {0}".format(dir))
 
     def clone_buildout(self):
         for name in self.names:
-            with path(self.configs[name].buildouts_folder):
-                vcs = self.plugins[self.configs[name].vcs_type]['cls']()
-                vcs.pull(self.configs[name].vcs_path,
-                         self.configs[name].buildouts_folder)
+            buildout = AjaBuildout(self.configs[name], self.arguments)
+            buildout.clone_buildout()
 
     def update_buildout(self):
         for name in self.names:
@@ -113,9 +112,11 @@ class Aja(object):
 
     def deploy(self):
         for name in self.names:
-            deploy = Rsync(self.configs[name], self.arguments)
-            deploy.push(self.configs[name].working_dir)
-            print("Deploy...")
+            config = self.configs[name]
+            dep = self.deploy_plugins[self.configs[name].buildout_type]['cls'](
+                config, self.arguments)
+            dep.deploy()
+            dep.deploy_eggs()
 
     def stage(self):
         for name in self.names:
@@ -129,10 +130,23 @@ class Aja(object):
             print(e)
 
     def list_plugins(self):
-        for plugin in self.plugins:
-            print "{name} - {docstring}".format(
+        """Print installed aja plugins with their documentation."""
+        if self.vcs_plugins:
+            print("VCS plugins:")
+        for plugin in self.vcs_plugins:
+            print " * {name} [{group}] - {docstring}".format(
                 name=plugin,
-                docstring=self.plugins[plugin]['desc']
+                group=self.vcs_plugins[plugin]['group'],
+                docstring=self.vcs_plugins[plugin]['desc']
+            )
+
+        if self.deploy_plugins:
+            print("\nDeploy plugins::")
+        for plugin in self.deploy_plugins:
+            print " * {name} [{group}] - {docstring}".format(
+                name=plugin,
+                group=self.deploy_plugins[plugin]['group'],
+                docstring=self.deploy_plugins[plugin]['desc']
             )
 
 

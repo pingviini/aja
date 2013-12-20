@@ -161,6 +161,10 @@ class Config(object):
         return self.get_buildout_option('target')
 
     @property
+    def buildout_type(self):
+        return self.get_buildout_option('buildout-type')
+
+    @property
     def development_target(self):
         """Deployment path."""
         return self.get_buildout_option('target', section='develop')
