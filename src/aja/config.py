@@ -151,6 +151,11 @@ class Config(object):
         return self.get_global_option(option='path', section='hg')
 
     @property
+    def git_path(self):
+        """Return path to hg."""
+        return self.get_global_option(option='path', section='git')
+
+    @property
     def deployment_target(self):
         """Deployment path."""
         return self.get_buildout_option('target')

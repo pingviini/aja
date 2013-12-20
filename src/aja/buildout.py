@@ -3,9 +3,12 @@ import subprocess
 import shlex
 import logging
 
-from aja.utils import memoize
 from pprint import pprint
+from path import path
 from zc.buildout.buildout import Buildout
+
+from .plugins import get_plugins
+from .utils import memoize
 
 
 class AjaBuildout(object):
@@ -14,15 +17,23 @@ class AjaBuildout(object):
         self.config = config
         self.name = self.config.name
         self.arguments = arguments
+        self.plugins = get_plugins()
         self.buildout_config = self.get_buildout_config()
 
         os.chdir(self.config.working_dir)
 
+    def clone_buildout(self):
+        with path(self.config.buildouts_folder):
+            vcs = self.plugins[self.config.vcs_type]['cls']()
+            vcs.pull(self.config.vcs_path,
+                     self.config.buildouts_folder)
+
     def update_buildout(self):
-        cmd = "%s pull" % (self.config.hg_path)
-        subprocess.check_call(shlex.split(cmd))
-        cmd = "%s update -C" % (self.config.hg_path)
-        subprocess.check_call(shlex.split(cmd))
+        path = "{buildouts}/{buildout}".format(
+            buildouts=self.config.buildouts_folder,
+            buildout=self.config.name)
+        vcs = self.plugins[self.config.vcs_type]['cls']()
+        vcs.update(path)
 
     def bootstrap_buildout(self):
         os.chdir("%s/%s" % (self.config.buildouts_folder,
