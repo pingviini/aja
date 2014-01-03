@@ -10,14 +10,16 @@ class TestMain(unittest.TestCase):
         pass
 
     def test_init(self):
-        aja = Aja({'<name>': 'test'})
+        aja = Aja({'<name>': ['test']})
         self.assertTrue(aja)
-        self.assertTrue(aja.config)
+        self.assertTrue(aja.configs)
+        self.assertEqual(len(aja.configs), 1)
 
     def test_actions(self):
         aja = Aja({'<name>': 'test'})
         actions = ['info', 'register', 'buildout', 'show-config',
-                   'deploy', 'clone', 'bootstrap', 'list', 'update']
+                   'list-plugins', 'deploy', 'clone', 'bootstrap', 'list',
+                   'update']
         self.assertEqual(actions, aja.actions.keys())
         self.assertEqual(aja.actions['info'], aja.show_info)
         self.assertEqual(aja.actions['register'], aja.register)

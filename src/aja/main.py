@@ -45,7 +45,7 @@ class Aja(object):
         self.names = self.arguments['<name>']
         self.vcs_plugins = get_plugins('aja.plugins.vcs')
         self.deploy_plugins = get_plugins('aja.plugins.deploy')
-        self.config_path = self.arguments['--config-path']
+        self.config_path = self.arguments.get('-config-path', None)
         self.configs = {name: Config(name, config_path=self.config_path) for
                         name in self.names}
         self.actions = {
@@ -59,7 +59,7 @@ class Aja(object):
             'deploy': self.deploy,
             'show-config': self.show_config,
             'list-plugins': self.list_plugins,
-            }
+        }
 
 
     def __call__(self):
@@ -141,7 +141,7 @@ class Aja(object):
             )
 
         if self.deploy_plugins:
-            print("\nDeploy plugins::")
+            print("\nDeploy plugins:")
         for plugin in self.deploy_plugins:
             print " * {name} [{group}] - {docstring}".format(
                 name=plugin,
