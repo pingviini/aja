@@ -32,6 +32,7 @@ setup(name='aja',
       extras_require={
           'docs': ['Sphinx']
       },
+      test_suite='aja.tests',
       entry_points={
           'console_scripts': ['aja=aja.main:main']
       },
