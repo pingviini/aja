@@ -12,8 +12,10 @@ class Rsync(object):
                 self.file.write(line + "\n")
             self.file.seek(0)
 
-        self.from_path = path and path or '--files-from={}'.format(self.file.name)
-        self.to_path = path and path or eggs_directory
+        self.from_path = path and path + '/' or '--files-from={} /'.format(
+            self.file.name)
+
+        self.to_path = path and path or '/'  # eggs_directory
         self.arguments = arguments
         self.target = target
         self.effective_user = effective_user

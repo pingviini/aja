@@ -6,6 +6,8 @@ class aja ($is_master = false, $master_private_key = "",
     home => "/home/aja",
     managehome => true,
     shell => "/bin/bash",
+    owner => "aja",
+    group => "aja",
   }
 
   file { "/home/aja":
@@ -27,18 +29,21 @@ class aja ($is_master = false, $master_private_key = "",
   file { "/home/aja/.buildout":
     ensure => "directory",
     owner => "aja",
+    group => "aja",
     require => User["aja"],
   }
 
   file { "/var/buildout":
     ensure => "directory",
     owner => "aja",
+    group => "aja",
     require => User["aja"],
   }
 
   file { "/var/buildout/eggs-directory":
     ensure => "directory",
     owner => "aja",
+    group => "aja",
     require => File["/var/buildout"],
   }
 
@@ -50,6 +55,7 @@ class aja ($is_master = false, $master_private_key = "",
   file { "/var/buildout/download-cache":
     ensure => "directory",
     owner => "aja",
+    group => "aja",
     require => File["/var/buildout"],
   }
 
@@ -61,6 +67,7 @@ class aja ($is_master = false, $master_private_key = "",
   file { "/var/buildout/extends-cache":
     ensure => "directory",
     owner => "aja",
+    group => "aja",
     require => File["/var/buildout"],
   }
 

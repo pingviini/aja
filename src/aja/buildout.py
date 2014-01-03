@@ -53,9 +53,10 @@ class AjaBuildout(object):
     def get_buildout_config(self):
         """Parse buildout config with zc.buildout ConfigParser."""
         logging.info("Loading buildout.cfg...")
-        cfg = Buildout("%s/%s/buildout.cfg" % (self.config.buildouts_folder,
-                                               self.name),
-                       [('buildout', 'verbosity', '0')])
+        cfg = Buildout("{buildouts_folder}/{buildout_name}/buildout.cfg".format(
+            buildouts_folder=self.config.buildouts_folder,
+            buildout_name=self.name),
+            [('buildout', 'verbosity', '0')])
         return cfg
 
     @property
