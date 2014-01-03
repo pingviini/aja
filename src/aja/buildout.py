@@ -5,6 +5,7 @@ import logging
 
 from pprint import pprint
 from path import path
+from zc.buildout import UserError
 from zc.buildout.buildout import Buildout
 
 from .plugins import get_plugins
@@ -20,13 +21,10 @@ class AjaBuildout(object):
         self.plugins = get_plugins('aja.plugins.vcs')
         self.buildout_config = self.get_buildout_config()
 
-        os.chdir(self.config.working_dir)
-
     def clone_buildout(self):
         with path(self.config.buildouts_folder):
             vcs = self.plugins[self.config.vcs_type]['cls']()
-            vcs.pull(self.config.vcs_path,
-                     self.config.buildouts_folder)
+            vcs.pull(self.config.vcs_path)
 
     def update_buildout(self):
         path = "{buildouts}/{buildout}".format(
@@ -53,10 +51,13 @@ class AjaBuildout(object):
     def get_buildout_config(self):
         """Parse buildout config with zc.buildout ConfigParser."""
         logging.info("Loading buildout.cfg...")
-        cfg = Buildout("{buildouts_folder}/{buildout_name}/buildout.cfg".format(
-            buildouts_folder=self.config.buildouts_folder,
-            buildout_name=self.name),
-            [('buildout', 'verbosity', '0')])
+        try:
+            cfg = Buildout("{buildouts_folder}/{buildout_name}/buildout.cfg".format(
+                buildouts_folder=self.config.buildouts_folder,
+                buildout_name=self.name),
+                [('buildout', 'verbosity', '0')])
+        except UserError as e:
+            return None
         return cfg
 
     @property

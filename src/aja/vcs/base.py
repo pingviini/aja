@@ -10,7 +10,7 @@ class VcsBase(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update(self, repository):
+    def update(self):
         """Update repository."""
         raise NotImplementedError
 
