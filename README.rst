@@ -86,7 +86,7 @@ Plugins
 Currently there are three plugins available:
 
 `ajaplugin_hg`_
-    Adds Mercurial.
+    Adds Mercurial support.
 `ajaplugin_git`_
     Adds Git support.
 `ajaplugin_plone`_
