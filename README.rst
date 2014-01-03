@@ -1,19 +1,22 @@
 Aja
 ===
 
+.. image:: https://secure.travis-ci.org/pingviini/aja.png
+    :target: http://travis-ci.org/pingviini/aja
+
 Aja is a tool for deploying buildouts to remote server.
 
 Why another deploy tool - we already have hostout and hostout.pushdeploy?
 
-With Aja I'm trying to streamline the deployment process with following ideas in mind:
+With Aja I'm trying to streamline the deployment process with following ideas
+in mind:
 
-#. Adding new site configuration shouldn't need anything else than adding the config to
-   vcs/folder or using included 'register' command.
-#. Deploy process should rsync only the packages which are used by buildout - even when
-   using shared eggs-folder or develop-eggs.
-#. Deployment process shouldn't require linux/sysadmin knowledge. We'll need
-   aja service with web frontend.
-
+#. Adding new aja buildout configuration shouldn't need any other steps than
+   adding the config to a specified location.
+#. Deploy process should rsync only the packages which are used by buildout
+   - even when using shared eggs-folder or develop-eggs.
+#. People have different environments with different requirements - Aja should
+   support plugins which extend its functionality.
 
 Installation
 ------------
@@ -23,6 +26,7 @@ Install aja normally with pip. Aja installs following requirements:
 * Fabric
 * docopt
 * zc.buildout
+* path.py
 
 ::
 
@@ -76,4 +80,21 @@ Usage (deployment not implemented yet)
 
     $ aja update bootstrap buildout deploy kirjasto
 
+Plugins
+-------
+
+Currently there are three plugins available:
+
+`ajaplugin_hg`_
+    Adds Mercurial.
+`ajaplugin_git`_
+    Adds Git support.
+`ajaplugin_plone`_
+    Adds Plone deployment support.
+
 Enjoy!
+
+
+.. _ajaplugin_hg: https://github.com/pingviini/ajaplugin_hg
+.. _ajaplugin_git: https://github.com/pingviini/ajaplugin_git
+.. _ajaplugin_plone: https://github.com/pingviini/ajaplugin_plone
