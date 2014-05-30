@@ -116,14 +116,18 @@ def buildout(*args):
 def push():
     """Push buildout artifacts
     """
+    buildout = api.env.buildout
     files = [
-        os.path.join(api.env.lcwd, 'bin'),
-        os.path.join(api.env.lcwd, 'parts')
+        buildout['buildout'].get('bin-directory'),
+        buildout['buildout'].get('parts-directory')
     ] + get_buildout_eggs(api.env.buildout)
+    exclude = [
+        os.path.join(buildout['buildout'].get('bin-directory'), 'buildout')
+    ]
     target = '{0:s}@{1:s}:/tmp'.format(
         api.env.user,
         api.env.host,
         api.env.lcwd
     )
-    with get_rsync(files, target=target) as cmd:
+    with get_rsync(files, target=target, exclude=exclude) as cmd:
         local_buildout_user(cmd)
