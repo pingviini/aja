@@ -18,6 +18,42 @@ in mind:
 #. People have different environments with different requirements - Aja should
    support plugins which extend its functionality.
 
+Work in progress
+----------------
+
+.. code::
+
+   [buildout]
+   parts = aja
+   extensions = mr.developer
+   sources = sources
+   auto-checkout = *
+
+   [sources]
+   aja = git https://git@github.com/datakurre/aja.git
+
+   [aja]
+   recipe = zc.recipe.egg
+   eggs =
+        aja
+        fabric
+   scripts = fab
+   initialization =
+      import aja.tasks
+      import fabric.api
+      fabric.api.env.update({
+          'aja_buildout_prefix': 'https://my.server/buildouts',
+          'aja_buildout_root': '/var/buildout',
+          'aja_buildout_user': 'zope'
+      })
+   arguments = aja.tasks.__path__
+
+
+.. code::
+
+   $ bin/fab create my-buildout:my-buildout/production.cfg
+   $ bin/fab -H my-buildout bootstrap buildout push
+
 Installation
 ------------
 

@@ -23,11 +23,11 @@ setup(name='aja',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'docopt',
           'fabric',
-          'zc.buildout',
-          'pycrypto==2.6.1',
           'path.py',
+          'pycrypto==2.6.1',
+          'requests',
+          'zc.buildout',
       ],
       extras_require={
           'docs': ['Sphinx']
