@@ -83,6 +83,13 @@ extends-cache = /var/buildout/extends-cache',
     ]
   }
 
+  python::virtualenv { '/usr/local/python':
+    ensure => 'present',
+    systempkgs => false,
+    owner => 'root',
+    group => 'root',
+  }
+
   if $is_master {
     file { '/tmp/aja-requirements.txt':
       ensure => 'present',
