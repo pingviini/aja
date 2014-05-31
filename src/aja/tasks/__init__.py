@@ -7,6 +7,7 @@ from fabric.context_managers import (
     lcd,
     settings
 )
+from fabric.network import parse_host_string
 from fabric.tasks import (
     Task,
     execute
@@ -40,6 +41,8 @@ class AjaTask(Task):
             (key.replace('-', '_'), value) for key, value
             in buildout.get('aja', {}).items() if key in keys
         ])
+        if 'host_string' in config:
+            config.update(parse_host_string(config.get('host_string')))
         config['buildout'] = buildout
         directory = buildout.get('buildout', {}).get('directory')
         with settings(**config):
