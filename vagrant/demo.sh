@@ -1,4 +1,4 @@
 #!/bin/sh
 cd /var/buildout
-aja init:plone,https://raw.githubusercontent.com/datakurre/aja/master/vagrant/plone-4.3.cfg
+aja init:plone,/vagrant/plone-4.3.cfg
 aja -H plone deploy

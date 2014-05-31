@@ -7,7 +7,10 @@ from fabric.context_managers import (
     lcd,
     settings
 )
-from fabric.tasks import Task
+from fabric.tasks import (
+    Task,
+    execute
+)
 from fabric.operations import (
     local,
     os
@@ -94,7 +97,7 @@ def bootstrap(*args):
     """Execute bootstrap.py
     """
     if not os.path.isfile('bootstrap.py'):
-        bootstrap_download.run()
+        execute('bootstrap_download')
     cmd = '{0:s} bootstrap.py'.format(
         (api.env.buildout.get('aja') or {}).get('executable')
         or api.env.buildout.get('buildout').get('executable')
@@ -116,20 +119,29 @@ def buildout(*args):
 def push():
     """Push buildout artifacts
     """
-    files = [
-        api.env.buildout['buildout'].get('bin-directory'),
-        api.env.buildout['buildout'].get('parts-directory')
-    ] + get_buildout_eggs(api.env.buildout)
-    exclude = [
-        os.path.join(
-            api.env.buildout['buildout'].get('bin-directory'), 'buildout')
-    ]
-    target = '{0:s}@{1:s}:/'.format(
+    buildout_bin = api.env.buildout['buildout'].get('bin-directory')
+    buildout_parts = api.env.buildout['buildout'].get('parts-directory')
+    buildout_eggs = get_buildout_eggs(api.env.buildout)
+
+    target = '{0:s}@{1:s}:{2:s}'.format(
         api.env.user,
         api.env.host,
         api.env.lcwd
     )
-    with get_rsync(files, target=target, exclude=exclude) as cmd:
+    exclude = [
+        os.path.join(buildout_bin, ['buildout'])
+    ]
+    arguments = '--delete-after'
+
+    with get_rsync(buildout_bin,
+                   target=target, exclude=exclude, arguments=arguments) as cmd:
+        local_buildout_user(cmd)
+    with get_rsync(buildout_parts,
+                   target=target, exclude=exclude, arguments=arguments) as cmd:
+        local_buildout_user(cmd)
+
+    target = '{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
+    with get_rsync(buildout_eggs, target=target, exclude=exclude) as cmd:
         local_buildout_user(cmd)
 
 
@@ -137,11 +149,11 @@ def push():
 def stage():
     """Pull and buildout
     """
-    buildout.run()
+    execute('buildout')
 
 
 @task(task_class=AjaTask)
 def deploy():
     """Push and restart
     """
-    push.run()
+    execute('push')
