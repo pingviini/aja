@@ -48,8 +48,8 @@ class AjaTask(Task):
 
 
 @task()
-def init(buildout_directory, buildout_extends):
-    """Initialize a new buildout directory
+def create(buildout_directory, buildout_extends):
+    """Create buildout directory
     """
     ##
     # Resolve arguments
@@ -86,16 +86,15 @@ extends = {0:s}
 
 @task(task_class=AjaTask)
 def bootstrap_download(*args):
-    """Download bootstrap.py
-    """
     cmd = 'curl -O http://downloads.buildout.org/2/bootstrap.py'
     local_buildout_user(' '.join([cmd] + list(args)))
+bootstrap_download.__doc__ = \
+    """Download bootstrap.py
+    """
 
 
 @task(task_class=AjaTask)
 def bootstrap(*args):
-    """Execute bootstrap.py
-    """
     if not os.path.isfile('bootstrap.py'):
         execute(bootstrap_download)
     cmd = '{0:s} bootstrap.py'.format(
@@ -103,30 +102,38 @@ def bootstrap(*args):
         or api.env.buildout.get('buildout').get('executable')
     )
     local_buildout_user(' '.join([cmd] + list(args)))
+bootstrap.__doc__ = \
+    """Execute bootstrap.py
+    """
 
 
 @task(task_class=AjaTask)
 def buildout(*args):
-    """Execute bin/buildout
-    """
     if not os.path.isfile('bin/buildout'):
         execute(bootstrap)
     cmd = 'bin/buildout'
     local_buildout_user(' '.join([cmd] + list(args)))
+buildout.__doc__ = \
+    """Execute bin/buildout
+    """
 
 
 @task(task_class=AjaTask)
 def push():
-    """Deploy buildout artifacts
-    """
     ##
-    # Push bin and parts
+    # Push bin
     with get_rsync(
-        files=[api.env.buildout['buildout'].get('bin-directory'),
-               api.env.buildout['buildout'].get('parts-directory')],
+        files=api.env.buildout['buildout'].get('bin-directory'),
         target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host),
-        exclude=os.path.join(api.env.buildout['buildout'].get('bin-directory'),
-                             'buildout')
+        exclude=os.path.join(
+            api.env.buildout['buildout'].get('bin-directory'), 'buildout')
+    ) as cmd:
+        local_buildout_user(cmd)
+    ##
+    # Push parts
+    with get_rsync(
+        files=api.env.buildout['buildout'].get('parts-directory'),
+        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
     ) as cmd:
         local_buildout_user(cmd)
     ##
@@ -136,3 +143,6 @@ def push():
         target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
     ) as cmd:
         local_buildout_user(cmd)
+push.__doc__ = \
+    """Push bin-, parts- and eggs-directories
+    """
