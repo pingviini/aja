@@ -68,21 +68,6 @@ class aja (
     require => File['/var/buildout']
   }
 
-#  exec { 'chown -R buildout /var/buildout/eggs-directory':
-#    require => File['/var/buildout/eggs-directory'],
-#    path => ['/bin']
-#  }
-#
-#  exec { 'chown -R buildout /var/buildout/download-cache':
-#    require => File['/var/buildout/download-cache'],
-#    path => ['/bin']
-#  }
-#
-#  exec { 'chown -R buildout /var/buildout/extends-cache':
-#    require => File['/var/buildout/extends-cache'],
-#    path => ['/bin']
-#  }
-
   file { '/home/buildout/.buildout/default.cfg':
     ensure => 'present',
     content => '[buildout]

@@ -124,10 +124,24 @@ def push():
         os.path.join(
             api.env.buildout['buildout'].get('bin-directory'), 'buildout')
     ]
-    target = '{0:s}@{1:s}:/tmp'.format(
+    target = '{0:s}@{1:s}:/'.format(
         api.env.user,
         api.env.host,
         api.env.lcwd
     )
     with get_rsync(files, target=target, exclude=exclude) as cmd:
         local_buildout_user(cmd)
+
+
+@task(task_class=AjaTask)
+def stage():
+    """Pull and buildout
+    """
+    buildout.run()
+
+
+@task(task_class=AjaTask)
+def deploy():
+    """Push and restart
+    """
+    push.run()
