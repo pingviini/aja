@@ -101,8 +101,7 @@ extends-cache = /var/buildout/extends-cache',
   if $is_master {
     file { '/tmp/aja-requirements.txt':
       ensure => 'present',
-      content => '
--e git+https://github.com/datakurre/aja.git@master#egg=aja',
+      content => '-e git+https://github.com/datakurre/aja.git@master#egg=aja',
       owner => 'root',
       group => 'root'
     }
@@ -118,6 +117,21 @@ extends-cache = /var/buildout/extends-cache',
       ensure => 'link',
       target => '/usr/local/aja/bin/fab',
       require => Python::Virtualenv['/usr/local/aja']
+    }
+    file { '/var/buildout/fabfile.py':
+      ensure => 'present',
+      content => "#!/usr/local/bin/aja
+import fabric.api
+fabric.api.env.update({
+    'aja_buildout_prefix': '',
+    'aja_buildout_root': '/var/buildout',
+    'aja_buildout_user': 'buildout'
+})
+from aja.tasks import *
+",
+      owner => 'buildout',
+      group => 'buildout',
+      require => File['/usr/local/bin/aja']
     }
     if $master_private_key {
       file { '/home/buildout/.ssh/id_rsa.pub':

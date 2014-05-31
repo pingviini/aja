@@ -94,9 +94,9 @@ def bootstrap(*args):
     """Execute bootstrap.py
     """
     if not os.path.isfile('bootstrap.py'):
-        bootstrap_download()
+        bootstrap_download.run()
     cmd = '{0:s} bootstrap.py'.format(
-        api.env.buildout.get('aja').get('executable')
+        (api.env.buildout.get('aja') or {}).get('executable')
         or api.env.buildout.get('buildout').get('executable')
     )
     local_buildout_user(' '.join([cmd] + list(args)))
