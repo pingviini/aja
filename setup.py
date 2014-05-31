@@ -5,7 +5,7 @@ setup(
     version='0.1.0',
     description='Buildout-based deployment made safe and easy',
     long_description=(open('README.rst').read() + '\n' +
-                      open('CHANGES.txt').read()),
+                      open('CHANGES.rst').read()),
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",

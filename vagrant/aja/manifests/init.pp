@@ -54,21 +54,11 @@ class aja (
     require => File['/var/buildout']
   }
 
-  exec { 'chown -R buildout /var/buildout/eggs-directory':
-    require => File['/var/buildout/eggs-directory'],
-    path => ['/bin']
-  }
-
   file { '/var/buildout/download-cache':
     ensure => 'directory',
     owner => 'buildout',
     group => 'buildout',
     require => File['/var/buildout']
-  }
-
-  exec { 'chown -R buildout /var/buildout/download-cache':
-    require => File['/var/buildout/download-cache'],
-    path => ['/bin']
   }
 
   file { '/var/buildout/extends-cache':
@@ -78,10 +68,20 @@ class aja (
     require => File['/var/buildout']
   }
 
-  exec { 'chown -R buildout /var/buildout/extends-cache':
-    require => File['/var/buildout/extends-cache'],
-    path => ['/bin']
-  }
+#  exec { 'chown -R buildout /var/buildout/eggs-directory':
+#    require => File['/var/buildout/eggs-directory'],
+#    path => ['/bin']
+#  }
+#
+#  exec { 'chown -R buildout /var/buildout/download-cache':
+#    require => File['/var/buildout/download-cache'],
+#    path => ['/bin']
+#  }
+#
+#  exec { 'chown -R buildout /var/buildout/extends-cache':
+#    require => File['/var/buildout/extends-cache'],
+#    path => ['/bin']
+#  }
 
   file { '/home/buildout/.buildout/default.cfg':
     ensure => 'present',
@@ -99,6 +99,26 @@ extends-cache = /var/buildout/extends-cache',
   }
 
   if $is_master {
+    file { '/tmp/aja-requirements.txt':
+      ensure => 'present',
+      content => '
+-e git+https://github.com/datakurre/aja.git@master#egg=aja',
+      owner => 'root',
+      group => 'root'
+    }
+    python::virtualenv { '/usr/local/aja':
+      ensure => 'present',
+      requirements => '/tmp/aja-requirements.txt',
+      systempkgs => false,
+      owner => 'root',
+      group => 'root',
+      require => File['/tmp/aja-requirements.txt']
+    }
+    file { '/usr/local/bin/aja':
+      ensure => 'link',
+      target => '/usr/local/aja/bin/fab',
+      require => Python::Virtualenv['/usr/local/aja']
+    }
     if $master_private_key {
       file { '/home/buildout/.ssh/id_rsa.pub':
         ensure => 'present',
