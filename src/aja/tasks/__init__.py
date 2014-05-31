@@ -97,7 +97,7 @@ def bootstrap(*args):
     """Execute bootstrap.py
     """
     if not os.path.isfile('bootstrap.py'):
-        execute('bootstrap_download')
+        execute(bootstrap_download)
     cmd = '{0:s} bootstrap.py'.format(
         (api.env.buildout.get('aja') or {}).get('executable')
         or api.env.buildout.get('buildout').get('executable')
@@ -110,50 +110,22 @@ def buildout(*args):
     """Execute bin/buildout
     """
     if not os.path.isfile('bin/buildout'):
-        bootstrap()
+        execute(bootstrap)
     cmd = 'bin/buildout'
     local_buildout_user(' '.join([cmd] + list(args)))
 
 
 @task(task_class=AjaTask)
 def push():
-    """Push buildout artifacts
+    """Deploy buildout artifacts
     """
     buildout_bin = api.env.buildout['buildout'].get('bin-directory')
     buildout_parts = api.env.buildout['buildout'].get('parts-directory')
     buildout_eggs = get_buildout_eggs(api.env.buildout)
 
-    target = '{0:s}@{1:s}:{2:s}'.format(
-        api.env.user,
-        api.env.host,
-        api.env.lcwd
-    )
-    exclude = [
-        os.path.join(buildout_bin, ['buildout'])
-    ]
-    arguments = '--delete-after'
-
-    with get_rsync(buildout_bin,
-                   target=target, exclude=exclude, arguments=arguments) as cmd:
-        local_buildout_user(cmd)
-    with get_rsync(buildout_parts,
-                   target=target, exclude=exclude, arguments=arguments) as cmd:
-        local_buildout_user(cmd)
-
+    files = [buildout_bin, buildout_parts] + buildout_eggs
     target = '{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
-    with get_rsync(buildout_eggs, target=target, exclude=exclude) as cmd:
+    exclude = os.path.join(buildout_bin, ['buildout'])
+
+    with get_rsync(files=files, target=target, exclude=exclude) as cmd:
         local_buildout_user(cmd)
-
-
-@task(task_class=AjaTask)
-def stage():
-    """Pull and buildout
-    """
-    execute('buildout')
-
-
-@task(task_class=AjaTask)
-def deploy():
-    """Push and restart
-    """
-    execute('push')
