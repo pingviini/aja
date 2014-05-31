@@ -119,13 +119,20 @@ def buildout(*args):
 def push():
     """Deploy buildout artifacts
     """
-    buildout_bin = api.env.buildout['buildout'].get('bin-directory')
-    buildout_parts = api.env.buildout['buildout'].get('parts-directory')
-    buildout_eggs = get_buildout_eggs(api.env.buildout)
-
-    files = [buildout_bin, buildout_parts] + buildout_eggs
-    target = '{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
-    exclude = os.path.join(buildout_bin, ['buildout'])
-
-    with get_rsync(files=files, target=target, exclude=exclude) as cmd:
+    ##
+    # Push bin and parts
+    with get_rsync(
+        files=[api.env.buildout['buildout'].get('bin-directory'),
+               api.env.buildout['buildout'].get('parts-directory')],
+        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host),
+        exclude=os.path.join(api.env.buildout['buildout'].get('bin-directory'),
+                             'buildout')
+    ) as cmd:
+        local_buildout_user(cmd)
+    ##
+    # Push eggs
+    with get_rsync(
+        files=get_buildout_eggs(api.env.buildout),
+        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
+    ) as cmd:
         local_buildout_user(cmd)
