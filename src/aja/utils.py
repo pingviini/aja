@@ -105,19 +105,45 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
         with NamedTemporaryFile() as exclude_file:
             cmd = ['rsync']
 
+            # fix or set default files
             if isinstance(files, str) or isinstance(files, unicode):
                 files = [files]
+            elif files is None:
+                files = []
+
+            # fix or set default exclude
+            if isinstance(exclude, str) or isinstance(exclude, unicode):
+                exclude = [exclude]
+            elif exclude is None:
+                exclude = []
+
+            # set common prefix to avoid rsync with root ('/') if possible
+            prefix = os.path.commonprefix(files + exclude)
+            try:
+                target_host, target_path = target.split(':')
+            except ValueError:
+                target_host = None
+                target_path = target
+            if prefix.startswith(source) and prefix.startswith(target_path):
+                source = prefix
+                if target_host:
+                    target = ':'.join([target_host, prefix])
+                else:
+                    target = prefix
+            else:
+                prefix = ''
+
+            # build files-from
             for line in (files or []):
-                files_file.write(line + '\n')
+                files_file.write(line[len(prefix):] + '\n')
                 files_file.flush()
             if files:
                 local('chmod a+r {0:s}'.format(files_file.name))
                 cmd.append('--files-from={0:s}'.format(files_file.name))
 
-            if isinstance(exclude, str) or isinstance(exclude, unicode):
-                exclude = [exclude]
+            # build exclude-from
             for line in (exclude or []):
-                exclude_file.write(line + '\n')
+                exclude_file.write(line[len(prefix):] + '\n')
                 exclude_file.flush()
             if exclude:
                 local('chmod a+r {0:s}'.format(exclude_file.name))
