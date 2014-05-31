@@ -1,6 +1,6 @@
 [submodule "vagrant/epel"]
 	path = vagrant/epel
 	url = https://github.com/stahnma/puppet-module-epel.git
-[submodule "vagrant/vcsrepo"]
-	path = vagrant/vcsrepo
-	url = https://github.com/puppetlabs/puppetlabs-vcsrepo
+[submodule "vagrant/python"]
+	path = vagrant/python
+	url = https://github.com/stankevich/puppet-python
