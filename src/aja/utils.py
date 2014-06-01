@@ -156,12 +156,12 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             # resolve hosts_string
             if api.env.host_string:
                 if ':' in api.env.host_string:
-                    target = ''.join(api.env.host_string, target)
+                    target = '{0:s}{1:s}'.format(api.env.host_string, target)
                 else:
-                    target = ':'.join(api.env.host_string, target)
+                    target = '{0:s}:{1:s}'.format(api.env.host_string, target)
 
             # add ssh keys
-            for key in key_filenames:
+            for key in key_filenames():
                 cmd.append('-i {0:s}'.format(key))
 
             cmd.append(source)
