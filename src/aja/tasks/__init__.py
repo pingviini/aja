@@ -127,7 +127,6 @@ def push():
     # Push bin
     with get_rsync(
         files=api.env.buildout['buildout'].get('bin-directory'),
-        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host),
         exclude=os.path.join(
             api.env.buildout['buildout'].get('bin-directory'), 'buildout')
     ) as cmd:
@@ -135,15 +134,13 @@ def push():
     ##
     # Push parts
     with get_rsync(
-        files=api.env.buildout['buildout'].get('parts-directory'),
-        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
+        files=api.env.buildout['buildout'].get('parts-directory')
     ) as cmd:
         local_buildout_user(cmd)
     ##
     # Push eggs
     with get_rsync(
-        files=get_buildout_eggs(api.env.buildout),
-        target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)
+        files=get_buildout_eggs(api.env.buildout)
     ) as cmd:
         local_buildout_user(cmd)
 push.__doc__ = \

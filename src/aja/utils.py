@@ -8,6 +8,7 @@ from urlparse import (
 )
 
 from fabric import api
+from fabric.network import key_filenames
 from fabric.operations import local
 from zc.buildout.buildout import Buildout
 
@@ -117,19 +118,11 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             elif exclude is None:
                 exclude = []
 
-            # set common prefix to avoid rsync with root ('/') if possible
             prefix = os.path.commonprefix(files + exclude)
-            try:
-                target_host, target_path = target.split(':')
-            except ValueError:
-                target_host = None
-                target_path = target
-            if prefix.startswith(source) and prefix.startswith(target_path):
+            # set common prefix to avoid rsync with root ('/') if possible
+            if prefix.startswith(source) and prefix.startswith(target):
                 source = prefix
-                if target_host:
-                    target = ':'.join([target_host, prefix])
-                else:
-                    target = prefix
+                target = prefix
             else:
                 prefix = ''
 
@@ -159,6 +152,17 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
 
             if arguments:
                 cmd.append(arguments)
+
+            # resolve hosts_string
+            if api.env.host_string:
+                if ':' in api.env.host_string:
+                    target = ''.join(api.env.host_string, target)
+                else:
+                    target = ':'.join(api.env.host_string, target)
+
+            # add ssh keys
+            for key in key_filenames:
+                cmd.append('-i {0:s}'.format(key))
 
             cmd.append(source)
             cmd.append(target)
