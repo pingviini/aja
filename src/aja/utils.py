@@ -150,17 +150,21 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             ##
             # Build files-from
             for line in (files or []):
-                files_file.write(line[len(prefix):] + '\n')
+                if line[len(prefix):]:
+                    files_file.write(line[len(prefix):] + '\n')
                 files_file.flush()
-            if files:
+            files_file.seek(0)
+            if files and files_file.read():
                 cmd.append('--files-from={0:s}'.format(files_file.name))
 
             ##
             # Build exclude-from
             for line in (exclude or []):
-                exclude_file.write(line[len(prefix):] + '\n')
+                if line[len(prefix):]:
+                    exclude_file.write(line[len(prefix):] + '\n')
                 exclude_file.flush()
-            if exclude:
+            exclude_file.seek(0)
+            if exclude and exclude_file.read():
                 cmd.append('--exclude-from={0:s}'.format(exclude_file.name))
 
             ##
