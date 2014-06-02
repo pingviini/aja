@@ -2,135 +2,151 @@ Aja
 ===
 
 .. image:: https://secure.travis-ci.org/pingviini/aja.png
-    :target: http://travis-ci.org/pingviini/aja
+   :target: http://travis-ci.org/pingviini/aja
 
-Aja is a tool for deploying buildouts to remote server.
+*Never run buildout_ on a production server again.*
 
-Why another deploy tool - we already have hostout and hostout.pushdeploy?
+.. _buildout: https://pypi.python.org/pypi/zc.buildout
 
-With Aja I'm trying to streamline the deployment process with following ideas
-in mind:
+Aja provides Fabric_ tasks for deploying buildouts_ from staging server to
+remote production servers:
 
-#. Adding new aja buildout configuration shouldn't need any other steps than
-   adding the config to a specified location.
-#. Deploy process should rsync only the packages which are used by buildout
-   - even when using shared eggs-folder or develop-eggs.
-#. People have different environments with different requirements - Aja should
-   support plugins which extend its functionality.
+* it assumes buildout with absolute path (this is the buildout default)
 
-Work in progress
-----------------
+* it assumes that all the relevant paths (python, buildout, shared eggs, etc)
+  are identical for the staging and production servers
 
-.. code::
+* bootstrap and buildout are always run on the staging server only
 
-   [buildout]
-   parts = aja
-   extensions = mr.developer
-   sources = sources
-   auto-checkout = *
+* buildout is deployed by pushing its bin-, parts- and (local or shared)
+  eggs-directories into the remote production server using rsync
 
-   [sources]
-   aja = git https://git@github.com/datakurre/aja.git
+.. _buildouts: https://pypi.python.org/pypi/zc.buildout
+.. _Fabric: https://pypi.python.org/pypi/Fabric
 
-   [aja]
-   recipe = zc.recipe.egg
-   eggs =
-        aja
-        fabric
-   scripts = fab
-   initialization =
-      import aja.tasks
-      import fabric.api
-      fabric.api.env.update({
-          'aja_buildout_prefix': 'https://my.server/buildouts',
-          'aja_buildout_root': '/var/buildout',
-          'aja_buildout_user': 'zope'
-      })
-   arguments = aja.tasks.__path__
-
-
-.. code::
-
-   $ bin/fab create my-buildout:my-buildout/production.cfg
-   $ bin/fab -H my-buildout bootstrap buildout push
 
 Installation
 ------------
 
-Install aja normally with pip. Aja installs following requirements:
+Aja can be installed like any Python package:
+
+.. code:: bash
+
+   $ pip install aja
+
+But be aware that Aja comes with the following dependencies
 
 * Fabric
-* docopt
+* paramiko
 * zc.buildout
-* path.py
+* setuptools
+* ecdsa
+* pycrypto
 
-::
+and therefore, it's recommended to use a dedicated virtualenv.
 
-    $ pip install aja
+Aja doesn't have it's own executable, but is executed using Fabric's ``fab``
+command. Of course, it is possible to symlink that as ``aja``.
 
-Configure
+
+Configuration
+-------------
+
+Aja is configured with a fabfile, e.g. ``fabfile.py``:
+
+.. code:: python
+
+   import fabric.api
+   fabric.api.env.update({
+       'buildout_directory_prefix': '',  # optional
+       'buildout_extends_prefix': '',    # optional
+   })
+   from aja.tasks import *
+
+
+``buildout_directory_prefix`` provides optional convenience when creating new
+buildouts or when looking for buildouts for the other commands.
+
+``buildout_extends_prefix`` provides optional convenience when creating new
+buildout.
+
+
+Usage
+-----
+
+Aja maps Fabric's hosts into buildouts so that for each buildout, it fills
+``fabric.api.env`` with variables from ``[aja]`` part in the buildout (this is
+quite similar to `collective.hostout`_). The rest of the resolved buildout file
+can be found at ``fabric.api.env.buildout``.
+
+.. _collective.hostout: https://pypi.python.org/pypi/collective.hostout
+
+An example ``[aja]`` part could look like:
+
+.. code:: ini
+
+   [aja]
+   executable = /usr/local/python/bin/python
+   host_string = buildout@production
+   key_filename = /home/buildout/.ssh/id_rsa
+
+This part would configure Aja tasks to use particular Python virtualenv for
+running the buildout
+and
+push the results into server ``production`` by performing rsync using the
+given key file.
+
+Example Aja usage could look like:
+
+.. bash::
+
+   $ /usr/local/bin/aja create:/var/buildout/plone,/vagrant/plone-4.3.cfg
+   $ /usr/local/bin/aja -H /var/buildout/plone buildout push
+
+And with the following convenience configuration in fabfile:
+
+.. code:: python
+
+   import fabric.api
+   fabric.api.env.update({
+       'buildout_directory_prefix': '/var/buildout',
+       'buildout_extends_prefix': '/vagrant',
+   })
+   from aja.tasks import *
+
+The previous example usage could look like:
+
+.. bash::
+
+   $ /usr/local/bin/aja create:plone,plone-4.3.cfg
+   $ /usr/local/bin/aja -H plone buildout push
+
+.. note::
+
+   ``buildout_extends_prefix`` can also be an URL like
+   ``http://myserver/buildouts/``
+
+
+Extending
 ---------
 
-Create global configuration for aja. Aja will look up the configuration from
-the following directories by default:
+Aja provides only the most basic fabric tasks, but it provides a custom
+task class ``aja.tasks.AjaTask``, which provides resolved buildout
+at ``fabric.api.env.buildout``. This makes it easy to define custom tasks
+in your fabfile, e.g.
 
-* /etc/aja/config.cfg
-* /usr/local/etc/config.cfg
-* $HOME/.aja/config.cfg
+.. python::
 
-    $ mkdir -p ~/.aja/sites
-    $ touch ~/.aja/config.cfg
+   from fabric import api
+   from fabric.operations import run
+   from aja.tasks import AjaTask
 
-Copy and modify the following content inside config.cfg you just created::
-
-    [global]
-    buildouts-folder = /path/to/buildouts
-    buildouts-config-folder = /path/to/buildouts/aja/configuration
-    effective-user = username
-    buildout-user = username
-
-    [git]
-    path = /path/to/git
-
-    [hg]
-    path = /path/to/hg
-
-
-Add config for site under /path/to/buildouts/aja/configuration::
-
-    [config]
-    python-path = /path/to/python/for/bootstrapping
-    target = ssh.example.org
-
-    [develop]
-    config = develop.cfg
-
-    [vcs]
-    type = hg
-    uri = https://www.example.org/buildout
-
-Usage (deployment not implemented yet)
---------------------------------------
-
-::
-
-    $ aja update bootstrap buildout deploy kirjasto
-
-Plugins
--------
-
-Currently there are three plugins available:
-
-`ajaplugin_hg`_
-    Adds Mercurial support.
-`ajaplugin_git`_
-    Adds Git support.
-`ajaplugin_plone`_
-    Adds Plone deployment support.
-
-Enjoy!
-
-
-.. _ajaplugin_hg: https://github.com/pingviini/ajaplugin_hg
-.. _ajaplugin_git: https://github.com/pingviini/ajaplugin_git
-.. _ajaplugin_plone: https://github.com/pingviini/ajaplugin_plone
+   @task(task_class=AjaTask)
+   def cleanup(*args):
+       buildout_bin = api.env.buildout['buildout'].get('bin-directory')
+       buildout_parts = api.env.buildout['buildout'].get('parts-directory')
+       run('rm -rf {0:s}'.format(buildout_bin))
+       run('rm -rf {0:s}'.format(buildout_parts))
+   cleanup.__doc__ = \
+       """Clean bin- and parts-directories (e.g. before push)
+       """
