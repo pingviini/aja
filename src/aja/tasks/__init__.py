@@ -79,6 +79,7 @@ extends = {0:s}
         output.write(contents)
         output.flush()
         local('cp {0:s} {1:s}'.format(output.name, filename))
+        local('chmod a+r {0:s}'.format(filename))
 
 
 @task(task_class=AjaTask)
