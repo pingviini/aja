@@ -135,7 +135,7 @@ task class ``aja.tasks.AjaTask``, which provides resolved buildout
 at ``fabric.api.env.buildout``. This makes it easy to define custom tasks
 in your fabfile, e.g.
 
-.. code:: python::
+.. code:: python
 
    from fabric import api
    from fabric.operations import run
