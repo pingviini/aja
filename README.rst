@@ -4,7 +4,7 @@ Aja
 .. image:: https://secure.travis-ci.org/pingviini/aja.png
    :target: http://travis-ci.org/pingviini/aja
 
-*Never run buildout_ on a production server again.*
+*Never run* buildout_ *on your production servers again.*
 
 .. _buildout: https://pypi.python.org/pypi/zc.buildout
 
