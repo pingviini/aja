@@ -142,11 +142,11 @@ in your fabfile, e.g.
    from aja.tasks import AjaTask
 
    @task(task_class=AjaTask)
-   def cleanup(*args):
+   def purge():
        buildout_bin = api.env.buildout['buildout'].get('bin-directory')
        buildout_parts = api.env.buildout['buildout'].get('parts-directory')
        run('rm -rf {0:s}'.format(buildout_bin))
        run('rm -rf {0:s}'.format(buildout_parts))
-   cleanup.__doc__ = \
+   purge.__doc__ = \
        """Clean bin- and parts-directories (e.g. before push)
        """
