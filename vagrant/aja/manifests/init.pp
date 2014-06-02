@@ -115,8 +115,8 @@ extends-cache = /var/buildout/extends-cache',
       content => "#!/usr/local/bin/aja
 import fabric.api
 fabric.api.env.update({
-    'aja_buildout_prefix': '',
-    'aja_buildout_root': '/var/buildout',
+    'buildout_extends_prefix': '',
+    'buildout_directory_prefix': '/var/buildout',
     'aja_buildout_user': 'buildout'
 })
 from aja.tasks import *

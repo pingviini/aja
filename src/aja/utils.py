@@ -136,7 +136,7 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
                 exclude = []
 
             ##
-            # Set common prefix to avoid rsync with root ('/') if possible
+            # Set common prefix to avoid rsync with root ('/') when possible
             prefix = os.path.commonprefix(files + exclude)
             if not os.path.exists(prefix):
                 prefix = os.path.dirname(prefix)
@@ -199,18 +199,20 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
 
 
 def get_buildout_directory(buildout_directory):
-    aja_buildout_root = api.env.get('aja_buildout_root') or ''
+    buildout_directory_prefix = api.env.get('buildout_directory_prefix') or ''
     if not urlparse(buildout_directory).path.startswith('/'):
-        return os.path.join(aja_buildout_root,
+        return os.path.join(buildout_directory_prefix,
                             buildout_directory)
     else:
         return buildout_directory
 
 
 def get_buildout_extends(buildout_directory, buildout_extends):
-    aja_buildout_prefix = api.env.get('aja_buildout_prefix') or ''
+    buildout_extends_prefix = api.env.get('buildout_extends_prefix') or ''
     if not urlparse(buildout_extends).path.startswith('/'):
-        return urljoin(urljoin(aja_buildout_prefix, buildout_directory) + '/',
-                       buildout_extends)
+        return urljoin(
+            urljoin(buildout_extends_prefix, buildout_directory) + '/',
+            buildout_extends
+        )
     else:
         return buildout_extends
