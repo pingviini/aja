@@ -207,12 +207,9 @@ def get_buildout_directory(buildout_directory):
         return buildout_directory
 
 
-def get_buildout_extends(buildout_directory, buildout_extends):
+def get_buildout_extends(buildout_extends):
     buildout_extends_prefix = api.env.get('buildout_extends_prefix') or ''
     if not urlparse(buildout_extends).path.startswith('/'):
-        return urljoin(
-            urljoin(buildout_extends_prefix, buildout_directory) + '/',
-            buildout_extends
-        )
+        return urljoin(buildout_extends_prefix, buildout_extends)
     else:
         return buildout_extends

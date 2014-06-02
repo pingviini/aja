@@ -58,7 +58,7 @@ def create(buildout_directory, buildout_extends):
     ##
     # Resolve arguments
     directory = get_buildout_directory(buildout_directory)
-    extends = get_buildout_extends(buildout_directory, buildout_extends)
+    extends = get_buildout_extends(buildout_extends)
 
     ##
     # Create buildout directory
