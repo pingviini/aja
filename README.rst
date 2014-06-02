@@ -100,8 +100,8 @@ Example Aja usage could look like:
 
 .. code:: bash
 
-   $ /usr/local/bin/aja create:/var/buildout/plone,/vagrant/plone-4.3.cfg
-   $ /usr/local/bin/aja -H /var/buildout/plone buildout push
+   $ fab create:/var/buildout/plone,/vagrant/plone-4.3.cfg
+   $ fab -H /var/buildout/plone buildout push
 
 And with the following convenience configuration in fabfile:
 
@@ -118,8 +118,8 @@ The previous example usage could look like:
 
 .. code:: bash
 
-   $ /usr/local/bin/aja create:plone,plone-4.3.cfg
-   $ /usr/local/bin/aja -H plone buildout push
+   $ fab create:plone,plone-4.3.cfg
+   $ fab -H plone buildout push
 
 .. note::
 
