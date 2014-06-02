@@ -18,11 +18,11 @@ from fabric.operations import (
 )
 from aja.utils import (
     local_buildout_user,
-    get_rsync,
     get_buildout_directory,
     get_buildout_config,
     get_buildout_extends,
-    get_buildout_eggs
+    get_buildout_eggs,
+    get_rsync_push
 )
 
 
@@ -125,7 +125,7 @@ buildout.__doc__ = \
 def push():
     ##
     # Push bin
-    with get_rsync(
+    with get_rsync_push(
         files=api.env.buildout['buildout'].get('bin-directory'),
         exclude=os.path.join(
             api.env.buildout['buildout'].get('bin-directory'), 'buildout')
@@ -133,13 +133,13 @@ def push():
         local_buildout_user(cmd)
     ##
     # Push parts
-    with get_rsync(
+    with get_rsync_push(
         files=api.env.buildout['buildout'].get('parts-directory')
     ) as cmd:
         local_buildout_user(cmd)
     ##
     # Push eggs
-    with get_rsync(
+    with get_rsync_push(
         files=get_buildout_eggs(api.env.buildout)
     ) as cmd:
         local_buildout_user(cmd)

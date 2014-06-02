@@ -101,7 +101,23 @@ def tidy_eggs_list(eggs_list):
 
 
 @contextmanager
-def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
+def get_rsync_pull(files, target='/', exclude=None, arguments=None):
+    with _get_rsync(
+            files, target=target, exclude=exclude, arguments=arguments,
+            source='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)) as cmd:
+        yield cmd
+
+
+@contextmanager
+def get_rsync_push(files, source='/', exclude=None, arguments=None):
+    with _get_rsync(
+            files, source=source, exclude=exclude, arguments=arguments,
+            target='{0:s}@{1:s}:/'.format(api.env.user, api.env.host)) as cmd:
+        yield cmd
+
+
+@contextmanager
+def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
     with NamedTemporaryFile() as files_file:
         with NamedTemporaryFile() as exclude_file:
             cmd = ['rsync']
@@ -118,11 +134,12 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             elif exclude is None:
                 exclude = []
 
-            prefix = os.path.commonprefix(files + exclude)
             # set common prefix to avoid rsync with root ('/') if possible
-            if prefix.startswith(source) and prefix.startswith(target):
-                source = prefix
-                target = prefix
+            prefix = os.path.commonprefix(files + exclude)
+            if (prefix.startswith(target.split(':')[-1])
+                    and prefix.startswith(target.split(':')[-1])):
+                source = ':'.join(source.split(':')[:-1] + [prefix])
+                target = ':'.join(target.split(':')[:-1] + [prefix])
             else:
                 prefix = ''
 
@@ -153,16 +170,15 @@ def get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             if arguments:
                 cmd.append(arguments)
 
-            # resolve hosts_string
-            if api.env.host_string:
-                if ':' in api.env.host_string:
-                    target = '{0:s}{1:s}'.format(api.env.host_string, target)
-                else:
-                    target = '{0:s}:{1:s}'.format(api.env.host_string, target)
-
-            # add ssh keys
-            for key in key_filenames():
-                cmd.append('-i {0:s}'.format(key))
+            # build rsh
+            if any([api.env.port, key_filenames()]):
+                cmd.append('--rsh="ssh {0:s}"'.format(' '.join(filter(bool, [
+                    # api.env.port
+                    api.env.port and '-p {0:s}'.format(api.env.port) or None,
+                    # key_filenames
+                    ' '.join(['-i {0:s}'.format(key)
+                              for key in key_filenames()])
+                ]))))
 
             cmd.append(source)
             cmd.append(target)
