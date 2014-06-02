@@ -138,7 +138,9 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             ##
             # Set common prefix to avoid rsync with root ('/') if possible
             prefix = os.path.commonprefix(files + exclude)
-            if not prefix.endswith(os.path.sep):
+            if not os.path.exists(prefix):
+                prefix = os.path.dirname(prefix)
+            if os.path.isdir(prefix) and not prefix.endswith(os.path.sep):
                 prefix += os.path.sep
             if (prefix.startswith(target.split(':')[-1])
                     and prefix.startswith(target.split(':')[-1])):
