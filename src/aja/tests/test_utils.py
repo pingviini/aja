@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import unittest
+from fabric import api
 
 from aja.utils import (
     get_buildout_config,
     get_buildout_parts,
     get_buildout_eggs,
-    get_rsync,
+    get_rsync_push,
     _memo
 )
 
@@ -97,12 +98,16 @@ if __name__ == '__main__':
             '/var/buildout/eggs-directory/Fabric-1.8.3-py2.7.egg'
         ])
 
-    def test_get_rsync(self):
+    def test_get_rsync_push(self):
         buildout = get_buildout_config(self._buildout_cfg)
         eggs = get_buildout_eggs(buildout)
-        with get_rsync(eggs, target='/') as cmd:
+        api.env.user = 'foo'
+        api.env.host = 'bar'
+        with get_rsync_push(eggs) as cmd:
             self.assertTrue(cmd.endswith(
-                '/var/buildout/eggs-directory/ /var/buildout/eggs-directory/'))
+                '/var/buildout/eggs-directory '
+                'foo@bar:/var/buildout/eggs-directory')
+            )
 
 
 if __name__ == '__main__':
