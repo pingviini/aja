@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from tempfile import NamedTemporaryFile
 
 from fabric import api
@@ -7,6 +8,7 @@ from fabric.context_managers import (
     lcd,
     settings
 )
+from fabric.contrib.files import exists
 from fabric.network import parse_host_string
 from fabric.tasks import (
     Task,
@@ -14,10 +16,9 @@ from fabric.tasks import (
 )
 from fabric.operations import (
     local,
-    os
+    run
 )
 from aja.utils import (
-    local_buildout_user,
     get_buildout_directory,
     get_buildout_config,
     get_buildout_extends,
@@ -56,41 +57,34 @@ def create(buildout_directory, buildout_extends):
     """
     ##
     # Resolve arguments
-    aja_buildout_directory = get_buildout_directory(buildout_directory)
-    aja_buildout_extends = get_buildout_extends(
-        buildout_directory, buildout_extends
-    )
+    directory = get_buildout_directory(buildout_directory)
+    extends = get_buildout_extends(buildout_directory, buildout_extends)
 
     ##
     # Create buildout directory
-    local_buildout_user(
-        'mkdir -p {0:s}'.format(aja_buildout_directory)
-    )
+    local('mkdir -p {0:s}'.format(directory))
 
+    ##
     # Create buildout.cfg
-    aja_buildout_filename = os.path.join(
-        aja_buildout_directory, 'buildout.cfg'
-    )
+    filename = os.path.join(directory, 'buildout.cfg')
     contents = """\
 [buildout]
 extends = {0:s}
-""".format(aja_buildout_extends)
+""".format(extends)
 
+    ##
     # Write buildout.cfg
     with NamedTemporaryFile() as output:
         print("[localhost] create: {0:s}".format(output.name))
         output.write(contents)
         output.flush()
-        local('chmod a+r {0:s}'.format(output.name))
-        local_buildout_user('cp {0:s} {1:s}'.format(
-            output.name, aja_buildout_filename)
-        )
+        local('cp {0:s} {1:s}'.format(output.name, filename))
 
 
 @task(task_class=AjaTask)
 def bootstrap_download(*args):
     cmd = 'curl -O http://downloads.buildout.org/2/bootstrap.py'
-    local_buildout_user(' '.join([cmd] + list(args)))
+    local(' '.join([cmd] + list(args)))
 bootstrap_download.__doc__ = \
     """Download bootstrap.py
     """
@@ -104,7 +98,7 @@ def bootstrap(*args):
         (api.env.buildout.get('aja') or {}).get('executable')
         or api.env.buildout.get('buildout').get('executable')
     )
-    local_buildout_user(' '.join([cmd] + list(args)))
+    local(' '.join([cmd] + list(args)))
 bootstrap.__doc__ = \
     """Execute bootstrap.py
     """
@@ -115,7 +109,7 @@ def buildout(*args):
     if not os.path.isfile('bin/buildout'):
         execute(bootstrap)
     cmd = 'bin/buildout'
-    local_buildout_user(' '.join([cmd] + list(args)))
+    local(' '.join([cmd] + list(args)))
 buildout.__doc__ = \
     """Execute bin/buildout
     """
@@ -123,26 +117,29 @@ buildout.__doc__ = \
 
 @task(task_class=AjaTask)
 def push():
+    buildout_part = api.env.buildout['buildout']
     ##
     # Push bin
+    if not exists(buildout_part.get('bin-directory')):
+        run('mkdir -p {0:s}'.format(buildout_part.get('bin-directory')))
     with get_rsync_push(
-        files=api.env.buildout['buildout'].get('bin-directory'),
-        exclude=os.path.join(
-            api.env.buildout['buildout'].get('bin-directory'), 'buildout')
+        files=buildout_part.get('bin-directory'),
+        exclude=os.path.join(buildout_part.get('bin-directory'), 'buildout')
     ) as cmd:
-        local_buildout_user(cmd)
+        local(cmd)
     ##
     # Push parts
-    with get_rsync_push(
-        files=api.env.buildout['buildout'].get('parts-directory')
-    ) as cmd:
-        local_buildout_user(cmd)
+    if not exists(buildout_part.get('parts-directory')):
+        run('mkdir -p {0:s}'.format(buildout_part.get('parts-directory')))
+    with get_rsync_push(files=buildout_part.get('parts-directory')) as cmd:
+        local(cmd)
     ##
     # Push eggs
-    with get_rsync_push(
-        files=get_buildout_eggs(api.env.buildout)
-    ) as cmd:
-        local_buildout_user(cmd)
+    eggs = get_buildout_eggs(api.env.buildout)
+    if not exists(os.path.commonprefix(eggs)):
+        run('mkdir -p {0:s}'.format(os.path.commonprefix(eggs)))
+    with get_rsync_push(files=get_buildout_eggs(api.env.buildout)) as cmd:
+        local(cmd)
 push.__doc__ = \
     """Push bin-, parts- and eggs-directories
     """

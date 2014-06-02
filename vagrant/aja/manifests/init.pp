@@ -142,20 +142,6 @@ from aja.tasks import *
         owner => 'buildout',
         group => 'buildout'
       }
-      file { '/home/vagrant/.ssh/buildout_id_rsa.pub':
-        ensure => 'present',
-        content => $master_public_key,
-        mode => 0644,
-        owner => 'vagrant',
-        group => 'vagrant'
-      }
-      file { '/home/vagrant/.ssh/buildout_id_rsa':
-        ensure => 'present',
-        content => $master_private_key,
-        mode => 0600,
-        owner => 'vagrant',
-        group => 'vagrant'
-      }
     }
   }
   else {

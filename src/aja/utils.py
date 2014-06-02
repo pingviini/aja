@@ -9,7 +9,6 @@ from urlparse import (
 
 from fabric import api
 from fabric.network import key_filenames
-from fabric.operations import local
 from zc.buildout.buildout import Buildout
 
 
@@ -122,20 +121,25 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
         with NamedTemporaryFile() as exclude_file:
             cmd = ['rsync']
 
-            # fix or set default files
+            ##
+            # Fix or set default files
             if isinstance(files, str) or isinstance(files, unicode):
                 files = [files]
             elif files is None:
                 files = []
 
-            # fix or set default exclude
+            ##
+            # Fix or set default exclude
             if isinstance(exclude, str) or isinstance(exclude, unicode):
                 exclude = [exclude]
             elif exclude is None:
                 exclude = []
 
-            # set common prefix to avoid rsync with root ('/') if possible
+            ##
+            # Set common prefix to avoid rsync with root ('/') if possible
             prefix = os.path.commonprefix(files + exclude)
+            if not prefix.endswith(os.path.sep):
+                prefix += os.path.sep
             if (prefix.startswith(target.split(':')[-1])
                     and prefix.startswith(target.split(':')[-1])):
                 source = ':'.join(source.split(':')[:-1] + [prefix])
@@ -143,22 +147,23 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             else:
                 prefix = ''
 
-            # build files-from
+            ##
+            # Build files-from
             for line in (files or []):
                 files_file.write(line[len(prefix):] + '\n')
                 files_file.flush()
             if files:
-                local('chmod a+r {0:s}'.format(files_file.name))
                 cmd.append('--files-from={0:s}'.format(files_file.name))
 
-            # build exclude-from
+            ##
+            # Build exclude-from
             for line in (exclude or []):
                 exclude_file.write(line[len(prefix):] + '\n')
                 exclude_file.flush()
             if exclude:
-                local('chmod a+r {0:s}'.format(exclude_file.name))
                 cmd.append('--exclude-from={0:s}'.format(exclude_file.name))
 
+            ##
             # -p preserve permissions
             # -t preserve modification times
             # -h output numbers in a human-readable format
@@ -170,7 +175,8 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             if arguments:
                 cmd.append(arguments)
 
-            # build rsh
+            ##
+            # Build rsh
             if any([api.env.port, key_filenames()]):
                 cmd.append('--rsh="ssh {0:s}"'.format(' '.join(filter(bool, [
                     # api.env.port
@@ -184,15 +190,6 @@ def _get_rsync(files, source='/', target='/', exclude=None, arguments=None):
             cmd.append(target)
 
             yield ' '.join(cmd)
-
-
-def local_buildout_user(cmd, *args, **kwargs):
-    aja_buildout_user = api.env.get('aja_buildout_user') or None
-    if api.env.aja_buildout_user:
-        local_sudo = 'sudo -u {0:s} '.format(aja_buildout_user)
-    else:
-        local_sudo = ''
-    local(local_sudo + cmd, *args, **kwargs)
 
 
 def get_buildout_directory(buildout_directory):
