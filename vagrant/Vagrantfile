@@ -1,6 +1,3 @@
-# -*- mode:ruby -*-
-# vi: set ft=ruby :
-
 Vagrant.configure("2") do |config|
   config.vm.define :staging do |staging|
     staging.vm.box = "centos64"
@@ -11,8 +8,8 @@ Vagrant.configure("2") do |config|
       puppet.manifests_path = "."
       puppet.manifest_file = "staging.pp"
       puppet.facter = {
+        "staging" => "192.168.50.10",
         "production" => "192.168.50.11",
-        "development" => "192.168.50.12",
         "hostname" => "staging",
         "is_master" => true,
         "master_private_key" => "-----BEGIN RSA PRIVATE KEY-----
@@ -55,24 +52,10 @@ orqC776CwSyKBpobOubuQq3RHa5gmpwKXbFPArrtbrsF0eBlYmA=
       puppet.manifests_path = "."
       puppet.manifest_file = "production.pp"
       puppet.facter = {
+        "staging" => "192.168.50.10",
+        "production" => "192.168.50.11",
         "master_public_key" => "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA2Iu8HwvXTSmlCzo5o8yBVk4Lgvq/6CesatTySO06hKOoWmtzib2YsYl3dusmyYQegGMqYFcY8BOk9dav/eepi0togvXm/x66RngYrAsJQS4zbrStbJKTwP07IaA9W7PazCWC3HjLghiK83zHdd9arnaMYn8tHwqAeY6H6NvwnXtu0aJ8PyACdTIbUIZUWZLhP52xmBd+hxIPOYOSvFJSLP8ZZLjsvMwPYTkQyslnLqqFyjulnrwgBUApCRpwXLQ/ToZ/mLI2s+siuEwdj8WuEen33s6SYgJv5s4WRf5635YkNsZpWrLMv9bLK07d+cvi0AwKJoGcnOtC6uMxEjsu0Q== vagrant@localhost.localdomain",
-        "hostname" => "production",
-      }
-    end
-  end
-  config.vm.define :development do |development|
-    development.vm.box = "centos64"
-    development.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
-    development.vm.network :private_network, ip: "192.168.50.12"
-    development.vm.provision :puppet do |puppet|
-      puppet.module_path = "."
-      puppet.manifests_path = "."
-      puppet.manifest_file = "production.pp"
-      puppet.facter = {
-        "master_public_key" => "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA2Iu8HwvXTSmlCzo5o8yBVk4Lgvq/6CesatTySO06hKOoWmtzib2YsYl3dusmyYQegGMqYFcY8BOk9dav/eepi0togvXm/x66RngYrAsJQS4zbrStbJKTwP07IaA9W7PazCWC3HjLghiK83zHdd9arnaMYn8tHwqAeY6H6NvwnXtu0aJ8PyACdTIbUIZUWZLhP52xmBd+hxIPOYOSvFJSLP8ZZLjsvMwPYTkQyslnLqqFyjulnrwgBUApCRpwXLQ/ToZ/mLI2s+siuEwdj8WuEen33s6SYgJv5s4WRf5635YkNsZpWrLMv9bLK07d+cvi0AwKJoGcnOtC6uMxEjsu0Q== vagrant@localhost.localdomain",
-        "hostname" => "development",
       }
     end
   end
 end
-
