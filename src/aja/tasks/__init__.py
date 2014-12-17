@@ -84,7 +84,7 @@ extends = {0:s}
 
 @task(task_class=AjaTask)
 def bootstrap_download(*args):
-    cmd = 'curl -O http://downloads.buildout.org/2/bootstrap.py'
+    cmd = 'curl https://bootstrap.pypa.io/bootstrap-buildout.py -o bootstrap.py'
     local(' '.join([cmd] + list(args)))
 bootstrap_download.__doc__ = \
     """Download bootstrap.py
