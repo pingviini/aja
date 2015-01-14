@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='aja',
-    version='0.9.0',
+    version='0.9.1.dev0',
     description='Buildout-based deployment made safe and easy',
     long_description=(open('README.rst').read() + '\n' +
                       open('CHANGES.rst').read()),
