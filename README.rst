@@ -4,10 +4,6 @@ Aja
 .. image:: https://secure.travis-ci.org/pingviini/aja.png
    :target: http://travis-ci.org/pingviini/aja
 
-*Never run* buildout_ *on your production servers again.*
-
-.. _buildout: https://pypi.python.org/pypi/zc.buildout
-
 Aja provides Fabric_ tasks for deploying buildouts_ from staging server to
 remote production servers:
 
@@ -21,6 +17,7 @@ remote production servers:
 * buildout is deployed by pushing its bin-, parts- and (local or shared)
   eggs-directories into the remote production server using rsync
 
+.. _buildout: https://pypi.python.org/pypi/zc.buildout
 .. _buildouts: https://pypi.python.org/pypi/zc.buildout
 .. _Fabric: https://pypi.python.org/pypi/Fabric
 
