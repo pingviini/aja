@@ -4,8 +4,9 @@ Changelog
 0.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Add support for bootstrap cmd to read setuptools and zc.buildout versions
+  from buildout
+  [datakurre]
 
 0.9.1 (2016-04-26)
 ------------------
