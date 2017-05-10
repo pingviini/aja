@@ -1,5 +1,4 @@
-{ pkgs ? import (builtins.fetchTarball  # revision for reproducible builds
-  "https://github.com/nixos/nixpkgs-channels/archive/nixos-16.03.tar.gz") {}
+{ pkgs ? import <nixpkgs> {}
 , pythonPackages ? pkgs.python27Packages
 }:
 

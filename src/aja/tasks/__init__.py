@@ -99,6 +99,13 @@ def bootstrap(*args):
         (api.env.buildout.get('aja') or {}).get('executable')
         or api.env.buildout.get('buildout').get('executable')
     )
+    versions = api.env.buildout.get('versions') or {}
+    setuptools_version = versions.get('setuptools')
+    if setuptools_version:
+        cmd += ' --setuptools-version=' + setuptools_version
+    buildout_version = versions.get('zc.buildout')
+    if buildout:
+        cmd += ' --buildout-version=' + buildout_version
     local(' '.join([cmd] + list(args)))
 bootstrap.__doc__ = \
     """Execute bootstrap.py
