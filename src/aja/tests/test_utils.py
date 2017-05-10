@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
 import unittest
 from fabric import api
 
@@ -67,7 +68,7 @@ if __name__ == '__main__':
         os.unlink(self._buildout_bin_fab)
         os.rmdir(self._buildout_bin)
         os.unlink(self._buildout_cfg)
-        os.rmdir(self._buildout)
+        shutil.rmtree(self._buildout)
         os.chdir(self._cwd)
 
     def test_memoize(self):
